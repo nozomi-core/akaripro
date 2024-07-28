@@ -9,7 +9,8 @@ sealed class Outcome<out T> {
         return when(this) {
             is Ok -> {
                 try {
-                    ok(mapper(value))
+                    val result = mapper(value)
+                    ok(result)
                 } catch (e: Exception) {
                     fail(e)
                 }
@@ -22,7 +23,8 @@ sealed class Outcome<out T> {
         return when(this) {
             is Ok -> {
                 try {
-                    ok(mapper(value))
+                    val result = mapper(value)
+                    ok(result)
                 } catch (e: Exception) {
                     fail(e)
                 }
@@ -32,12 +34,16 @@ sealed class Outcome<out T> {
     }
 
     fun ifFail(callback: (Int, Reason) -> Unit): Outcome<T> {
-
+        if(this is Fail) {
+            callback(this.reason.reasonId, this.reason)
+        }
         return this
     }
 
     fun ifOk(callback: (T) -> Unit): Outcome<T> {
-
+        if(this is Ok) {
+            callback(this.value)
+        }
         return this
     }
 
@@ -48,13 +54,27 @@ sealed class Outcome<out T> {
         }
     }
 
+    fun <N> pipe(mapper: (input: Outcome<T>) -> N): Outcome<N> {
+        return when(this) {
+            is Ok -> {
+                try {
+                    val result = mapper(this)
+                    ok(result)
+                } catch (e: Exception) {
+                    fail(e)
+                }
+            }
+            is Fail -> this
+        }
+    }
+
     companion object {
 
         fun <T> ok(value: T): Outcome<T> {
             return if(value == null) {
                 Fail(Reason.empty())
             } else {
-                Ok(value)
+                Ok<T>(value)
             }
         }
 
@@ -62,4 +82,13 @@ sealed class Outcome<out T> {
             return Fail(Reason.exception(e))
         }
     }
+}
+
+fun <Y> Outcome<Outcome<Y>>.next(): Outcome<Y> {
+    return getOrNull() ?: Outcome.fail(Reason.empty())
+}
+
+fun <T, N> Outcome<Outcome<T>>.next(mapper: (input: Outcome<T>) -> N): Outcome<N> {
+    val nextValue = next()
+    return nextValue.pipe(mapper)
 }
