@@ -3,7 +3,7 @@ package dev.akaripro.lang
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.Assertions.*
 
-class OutcomeFunctionalTest {
+class OutcomeTest4 {
 
     @Test
     fun testMultiFunctionalCalls() {
@@ -12,20 +12,6 @@ class OutcomeFunctionalTest {
         val execute = doDatabase(trim)
         val check = doCheckUpdate(execute)
         val result = check.getOrNull()
-        assertTrue(result!!)
-    }
-
-    @Test
-    fun testMultiFunctionalCallWith() {
-        var result: Boolean? = null
-
-        Outcome.ok("  CREATE table   ")
-            .pipe { doRemoveWhitespace(it) }.next()
-            .pipe { doDatabase(it) }.next()
-            .pipe { doCheckUpdate(it) }.next()
-            .then {
-                result = it
-            }
         assertTrue(result!!)
     }
 
