@@ -54,6 +54,14 @@ sealed class Outcome<out T> {
         }
     }
 
+    fun requireOkOrThrow(): Outcome<Unit> {
+        if(this is Fail) {
+            throw this.reason
+        } else {
+            return ok(Unit)
+        }
+    }
+
     fun <N> pipe(mapper: (input: Outcome<T>) -> N): Outcome<N> {
         return when(this) {
             is Ok -> {

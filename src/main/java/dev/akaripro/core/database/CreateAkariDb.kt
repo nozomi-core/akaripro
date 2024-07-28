@@ -1,5 +1,6 @@
 package dev.akaripro.core.database
 
+import dev.akaripro.lang.Outcome
 import java.io.File
 import java.sql.DriverManager
 
@@ -34,26 +35,38 @@ fun createAkariDatabase(callback: AkariDbBuilder.() -> Unit): AkariDb {
     val akariDb = AkariDb(dbState.getDbConnection())
 
     if(dbState is DatabaseState.Empty) {
-        invokeOnCreateDatabase(akariDb, builder.callbacks!!)
+        val initDb = invokeOnCreateDatabase(akariDb, builder.callbacks)
+        initDb.ifFail { _, _ ->
+            akariDb.close()
+            cleanupDbCreateFailed(builder)
+        }
     }
 
     return akariDb
 }
 
-private fun invokeOnCreateDatabase(db: AkariDb, callback: DatabaseCallbacks) {
-    initAkariDatabaseSchema(db)
-    callback.onCreate(db)
+private fun cleanupDbCreateFailed(builder: AkariDbBuilder) {
+    when(val dbType = builder.type) {
+        is DatabaseType.FileDatabase -> {
+            val dbFile = File(dbType.parentDir, builder.name)
+            dbFile.delete()
+        }
+        else -> {}
+    }
 }
 
-private fun initAkariDatabaseSchema(db: AkariDb) {
-    val smt = db.connection.createStatement()
+private fun invokeOnCreateDatabase(db: AkariDb, callback: DatabaseCallbacks): Outcome<Unit> {
+    return initAkariDb(db).then {
+        val userOnCreateSQL = db.useTransaction { connection ->
+            val secureConnection = SecureConnection(connection)
 
-    smt.execute("""
-         create table ${AkariSchema.AkariEnv.table}(
-            ${AkariSchema.AkariEnv.key} TEXT PRIMARY KEY ON CONFLICT REPLACE,
-            ${AkariSchema.AkariEnv.value} TEXT,
-            ${AkariSchema.AkariEnv.type} TEXT
-         );
-    """)
+            callback.onCreate(secureConnection)
+            connection.createStatement()
+                .execute("insert into ${AkariSchema.AkariEnv.table}(key, value, type) values ('db_version', '1', 'int')")
+        }
+
+        //Crash if users onCreate SQL does not return success, this is to stop corruption of data
+        userOnCreateSQL.requireOkOrThrow()
+    }
 }
 
