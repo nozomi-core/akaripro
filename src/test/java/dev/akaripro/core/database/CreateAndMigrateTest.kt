@@ -48,8 +48,6 @@ class CreateAkariDbTest {
         val testDir = ".test"
         val dbName = "create_migrate_success.db"
 
-
-
         val db = createAkariDatabase {
             version = 3
             name = dbName
