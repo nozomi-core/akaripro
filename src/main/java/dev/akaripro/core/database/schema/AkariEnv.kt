@@ -15,18 +15,28 @@ object AkariEnv {
         const val integer = "int"
     }
 
-    const val create = """
-        create table $table(
-            $key TEXT PRIMARY KEY ON CONFLICT REPLACE,
-            $value TEXT,
-            $type TEXT
-        );
-     """
+    object Statements {
+        fun createTable(): String {
+            return """
+                create table $table(
+                $key TEXT PRIMARY KEY ON CONFLICT REPLACE,
+                $value TEXT,
+                $type TEXT
+                );
+            """
+        }
 
-    object Queries {
-        const val selectDbVersion = "select * from $table where $key= '${Keys.dbVersion}'"
+        fun selectDbVersion(): String {
+            return """
+                select * from $table where $key= '${Keys.dbVersion}';
+            """
+        }
 
-        fun insertDbVersion(version: Int): String =
-            "insert into $table($key, $value, $type) values ('${Keys.dbVersion}', '${version}', '${Types.integer}')"
+        fun insertDbVersion(version: Int): String {
+            return """
+                insert into $ table($key, $value, $type) 
+                values ('${Keys.dbVersion}', '${version}', '${Types.integer}');
+            """
+        }
     }
 }

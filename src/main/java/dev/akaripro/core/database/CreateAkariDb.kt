@@ -67,7 +67,7 @@ private fun invokeOnCreateDatabase(db: AkariDb, callback: DatabaseCallbacks): Ou
 
             callback.onCreate(connection)
             connection.createStatement()
-                .execute(AkariEnv.Queries.insertDbVersion(1))
+                .execute(AkariEnv.Statements.insertDbVersion(1))
         }
 
         //Crash if users onCreate SQL does not return success, this is to stop corruption of data
@@ -92,7 +92,7 @@ private fun invokeOnMigrations(db: AkariDb, version: Int, callbacks: DatabaseCal
         }
 
         connection.createStatement()
-            .execute(AkariEnv.Queries.insertDbVersion(version))
+            .execute(AkariEnv.Statements.insertDbVersion(version))
     }.requireOkOrThrow()
 }
 

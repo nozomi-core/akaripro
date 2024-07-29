@@ -28,7 +28,7 @@ class AkariDb(
 
     fun getVersion(): Outcome<Int> {
         return Outcome.tryThis {
-            connection.createStatement().executeQuery(AkariEnv.Queries.selectDbVersion)
+            connection.createStatement().executeQuery(AkariEnv.Statements.selectDbVersion())
         }.then {
             it.getString(AkariEnv.value).toInt()
         }
