@@ -5,7 +5,7 @@ import dev.akaripro.lang.Outcome
 import java.io.File
 import java.sql.DriverManager
 
-fun createAkariDatabase(callback: AkariDbBuilder.() -> Unit): AkariDb {
+fun  createAkariDatabase(callback: AkariDbBuilder.() -> Unit): AkariDb {
     val builder = AkariDbBuilder()
     callback(builder)
 

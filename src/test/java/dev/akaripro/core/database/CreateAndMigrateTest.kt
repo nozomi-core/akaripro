@@ -48,7 +48,7 @@ class CreateAkariDbTest {
         val testDir = ".test"
         val dbName = "create_migrate_success.db"
 
-        val file = File(testDir, dbName)
+
 
         val db = createAkariDatabase {
             version = 3
@@ -71,7 +71,7 @@ class CreateAkariDbTest {
         }
         val upgradedVersion = db.getVersion().getOrThrow()
         db.close()
-        file.delete()
+        File(testDir, dbName).delete()
         assertEquals("2,3,", migrateString.toString())
         assertEquals(3, upgradedVersion)
     }
