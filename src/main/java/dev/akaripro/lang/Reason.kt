@@ -8,11 +8,11 @@ class Reason private constructor(
 
     companion object {
         fun empty(): Reason {
-            TODO()
+            return Reason(0,Exception())
         }
 
         fun exception(e: Exception): Reason {
-            return Reason(0, e)
+            return Reason(1, e)
         }
     }
 }

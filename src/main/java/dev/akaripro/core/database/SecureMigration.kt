@@ -12,7 +12,7 @@ class SecureMigration {
             1. There is no duplicate 'version' code in the list of migrations. Only 1 migration per int
             2. There can not be duplicate class handlers. Each migration should have a different class.
         */
-        migrateMap.put(toVersion, migrationHandler)
+        migrateMap[toVersion] = migrationHandler
     }
 
     internal fun runMigration(connection: SecureConnection, version: Int) {
