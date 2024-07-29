@@ -4,7 +4,6 @@ sealed class Outcome<out T> {
     class Ok<out T> internal constructor(val value: T): Outcome<T>()
     class Fail internal constructor(val reason: Reason): Outcome<Nothing>()
 
-    //Maps an outcome functionally to another one.
     fun <N> then(mapper: (input: T) -> N): Outcome<N> {
         return when(this) {
             is Ok -> {
@@ -54,11 +53,18 @@ sealed class Outcome<out T> {
         }
     }
 
-    fun requireOkOrThrow(): Outcome<Unit> {
+    fun requireOkOrThrow(): Outcome<RequireOk> {
         if(this is Fail) {
-            throw this.reason
+            throw this.reason.exception
         } else {
-            return ok(Unit)
+            return ok(RequireOk())
+        }
+    }
+
+    fun getOrThrow(): T {
+        return when(this) {
+            is Fail -> throw this.reason.exception
+            is Ok -> this.value
         }
     }
 
@@ -89,14 +95,24 @@ sealed class Outcome<out T> {
         fun fail(e: Exception): Outcome<Nothing> {
             return Fail(Reason.exception(e))
         }
+
+        fun <T> tryThis(callback: () -> T): Outcome<T> {
+            return try {
+                ok(callback())
+            } catch (e: Exception) {
+                fail(e)
+            }
+        }
     }
 }
 
 fun <Y> Outcome<Outcome<Y>>.next(): Outcome<Y> {
-    return getOrNull() ?: Outcome.fail(Reason.empty())
+    return getOrNull() ?: Outcome.fail(Exception())
 }
 
 fun <T, N> Outcome<Outcome<T>>.next(mapper: (input: Outcome<T>) -> N): Outcome<N> {
     val nextValue = next()
     return nextValue.pipe(mapper)
 }
+
+class RequireOk internal constructor()

@@ -2,8 +2,9 @@ package dev.akaripro.lang
 
 class Reason private constructor(
     val reasonId: Int,
-    val parent: Exception?
-): Exception() {
+    private val parent: Exception?
+) {
+    val exception: Exception get() = parent ?: Exception()
 
     companion object {
         fun empty(): Reason {
@@ -12,10 +13,6 @@ class Reason private constructor(
 
         fun exception(e: Exception): Reason {
             return Reason(0, e)
-        }
-
-        fun of(id: Int): Reason {
-            TODO()
         }
     }
 }

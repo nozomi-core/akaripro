@@ -8,5 +8,9 @@ object AkariSchema {
         const val key = "key"
         const val value =  "value"
         const val type = "type"
+
+        object Keys {
+            const val DB_VERSION = "db_version"
+        }
     }
 }

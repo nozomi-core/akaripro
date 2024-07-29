@@ -36,7 +36,7 @@ class OutcomeTest {
         Outcome.ok("").then {
             throw Exception("empty")
         }.ifFail { _, reason ->
-           ex = reason.parent
+           ex = reason.exception
         }
         assertNotNull(ex)
         assertEquals("empty", ex?.message)

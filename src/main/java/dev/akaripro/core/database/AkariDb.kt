@@ -10,9 +10,9 @@ class AkariDb(
         connection.autoCommit = false
     }
 
-    fun useTransaction(callback: (Connection) -> Unit): Outcome<Unit> {
+    fun useTransaction(callback: (SecureConnection) -> Unit): Outcome<Unit> {
         return try {
-            callback(connection)
+            callback(SecureConnection(connection))
             connection.commit()
             Outcome.ok(Unit)
         } catch (e: Exception) {
@@ -23,5 +23,13 @@ class AkariDb(
 
     fun close() {
         connection.close()
+    }
+
+    fun getVersion(): Outcome<Int> {
+        return Outcome.tryThis {
+            connection.createStatement().executeQuery("select * from ${AkariSchema.AkariEnv.table} where ${AkariSchema.AkariEnv.key}= '${AkariSchema.AkariEnv.Keys.DB_VERSION}'")
+        }.then {
+            it.getString(AkariSchema.AkariEnv.value).toInt()
+        }
     }
 }
