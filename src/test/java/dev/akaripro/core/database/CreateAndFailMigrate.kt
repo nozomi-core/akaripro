@@ -48,9 +48,8 @@ class CreateAkariDbTestFail {
         }
         val upgradedVersion = db.getVersion().getOrThrow()
         db.close()
-        //file.delete()
+        file.delete()
         assertEquals("2,3,", migrateString.toString())
         assertEquals(3, upgradedVersion)
     }
-
 }

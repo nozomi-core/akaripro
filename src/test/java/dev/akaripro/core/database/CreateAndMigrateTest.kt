@@ -23,10 +23,13 @@ class CreateAkariDbTest {
     //TODO: add tests to test if init db fails. File should not be created
     @Test
     fun testCreateDatabase() {
-        createAkariDatabase {
+        val testDir = ".test"
+        val dbName = "create_akari_success.db"
+
+        val db = createAkariDatabase {
             version = 1
-            name = "create_akari.db"
-            type = DatabaseType.FileDatabase(File(".test"))
+            name = dbName
+            type = DatabaseType.FileDatabase(File(testDir))
             callbacks = object: DatabaseCallbacks {
                 override fun onCreate(connection: SecureConnection) {
                     connection.createStatement().execute("create table anime(name TEXT);")
@@ -35,13 +38,15 @@ class CreateAkariDbTest {
                 override fun onMigrate(migrations: SecureMigration) {}
             }
         }
+        db.close()
+        File(testDir, dbName).delete()
     }
 
     @Test
     fun testMigrateTov3() {
         val migrateString = StringBuilder()
         val testDir = ".test"
-        val dbName = "create_akari_migrate.db"
+        val dbName = "create_migrate_success.db"
 
         val file = File(testDir, dbName)
 
@@ -70,5 +75,4 @@ class CreateAkariDbTest {
         assertEquals("2,3,", migrateString.toString())
         assertEquals(3, upgradedVersion)
     }
-
 }
