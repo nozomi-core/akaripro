@@ -1,5 +1,6 @@
 package dev.akaripro.core.database
 
+import dev.akaripro.core.database.schema.AkariEnv
 import dev.akaripro.lang.Outcome
 import java.sql.Connection
 
@@ -27,9 +28,9 @@ class AkariDb(
 
     fun getVersion(): Outcome<Int> {
         return Outcome.tryThis {
-            connection.createStatement().executeQuery("select * from ${AkariSchema.AkariEnv.table} where ${AkariSchema.AkariEnv.key}= '${AkariSchema.AkariEnv.Keys.DB_VERSION}'")
+            connection.createStatement().executeQuery(AkariEnv.Queries.selectDbVersion)
         }.then {
-            it.getString(AkariSchema.AkariEnv.value).toInt()
+            it.getString(AkariEnv.value).toInt()
         }
     }
 }

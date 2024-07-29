@@ -1,5 +1,6 @@
 package dev.akaripro.core.database
 
+import dev.akaripro.core.database.schema.AkariEnv
 import dev.akaripro.lang.RequireOk
 import dev.akaripro.lang.Outcome
 import java.io.File
@@ -66,7 +67,7 @@ private fun invokeOnCreateDatabase(db: AkariDb, callback: DatabaseCallbacks): Ou
 
             callback.onCreate(connection)
             connection.createStatement()
-                .execute("insert into ${AkariSchema.AkariEnv.table}(key, value, type) values ('db_version', '1', 'int')")
+                .execute(AkariEnv.Queries.insertDbVersion(1))
         }
 
         //Crash if users onCreate SQL does not return success, this is to stop corruption of data
@@ -90,9 +91,8 @@ private fun invokeOnMigrations(db: AkariDb, version: Int, callbacks: DatabaseCal
             migration.runMigration(connection, i)
         }
 
-        //TODO: move these elsewhere. There are now 3 calls to manually update the version number
         connection.createStatement()
-            .execute("insert into ${AkariSchema.AkariEnv.table}(key, value, type) values ('db_version', '${version}', 'int')")
+            .execute(AkariEnv.Queries.insertDbVersion(version))
     }.requireOkOrThrow()
 }
 
