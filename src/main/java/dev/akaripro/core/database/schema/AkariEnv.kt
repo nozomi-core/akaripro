@@ -34,7 +34,7 @@ object AkariEnv {
 
         fun insertDbVersion(version: Int): String {
             return """
-                insert into $ table($key, $value, $type) 
+                insert into $table($key, $value, $type) 
                 values ('${Keys.dbVersion}', '${version}', '${Types.integer}');
             """
         }
